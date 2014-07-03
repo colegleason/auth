@@ -20,15 +20,15 @@ func GitHub(secret string) http.HandlerFunc {
 
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			http.Error(res, "Not Authorized", http.StatusUnauthorized)
+			http.Error(res, err.Error(), http.StatusUnauthorized)
 		}
 
 		mac := hmac.New(sha1.New, []byte(secret))
-		mac.Reset()
 		mac.Write([]byte(body))
 		calculatedSignature := fmt.Sprintf("sha1=%x", mac.Sum(nil))
 
 		if !SecureCompare(requestSignature, calculatedSignature) {
+			fmt.Printf("request: %s, calculated: %s\n", requestSignature, calculatedSignature)
 			http.Error(res, "Not Authorized", http.StatusUnauthorized)
 		}
 	}
